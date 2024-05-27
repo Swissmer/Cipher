@@ -51,7 +51,7 @@ class Cipher {
 let cipher = Cipher()
 
 let keyString  = "key"
-let dataString = "ɇ"
+let dataString = "Daniil Semenov!"
 
 print("Ключ: \t\t\t", keyString)
 print("Текст: \t\t\t", dataString)
