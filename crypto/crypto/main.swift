@@ -1,50 +1,50 @@
 import Foundation
 
 class Cipher {
-    var SKey: [Int] = Array(repeating: 0, count: 256) // Массив индексов ключей
-    var x = 0, y = 0 // переменные для getKey
-    
-    // Массив байтов
-    func byteArr(_ str: String) -> [UInt8] {
-        return Array(str.utf8)
-    }
+    var SBlock: [Int] = Array(repeating: 0, count: 256) // S-block
     
     // Шифрование & Расшифрование
     func encryptDecrypt(data: [UInt8], key: [UInt8]) -> [UInt8] {
         var outputBytes: [UInt8] = []
         
-        for i in 0..<SKey.count {
-            SKey[i] = i
-        }
-        // генерация ключа
-        var j = 0
-        for i in 0..<SKey.count {
-            j = ((SKey.count - j) + SKey[i] + Int(key[i % key.count])) % SKey.count
-            swap(i: i, j: j)
-        }
+        generationSBlock(key: key)
         
+        var indexForSwapKey1 = 0
+        var indexForSwapKey2 = 0
         // шифрование данных
         for index in 0..<data.count {
-            outputBytes.append(data[index] ^ getKey())
+            indexForSwapKey1 = index
+            outputBytes.append(data[index] ^ getKey(indexForSwapKey1: indexForSwapKey1, indexForSwapKey2: &indexForSwapKey2))
         }
         
-        self.x = 0
-        self.y = 0
         return outputBytes
     }
     
+    // генерация S-блока
+    private func generationSBlock(key: [UInt8]) {
+        for i in 0..<SBlock.count {
+            SBlock[i] = i
+        }
+        
+        var j = 0
+        for i in 0..<SBlock.count {
+            j = ((SBlock.count - j) + SBlock[i] + Int(key[i % key.count])) % SBlock.count
+            swap(i: i, j: j)
+        }
+    }
+    
     // Получение ключа
-    private func getKey() -> UInt8 {
-        y = (SKey[x] + SKey.count % (y + 1)) % SKey.count
-        swap(i: x, j: y)
-        return UInt8(SKey[(SKey[x] + SKey[y]) % SKey.count])
+    private func getKey(indexForSwapKey1: Int, indexForSwapKey2: inout Int) -> UInt8 {
+        indexForSwapKey2 = (SBlock[indexForSwapKey1] + SBlock.count % (indexForSwapKey2 + 1)) % SBlock.count
+        swap(i: indexForSwapKey1, j: indexForSwapKey2)
+        return UInt8(SBlock[(SBlock[indexForSwapKey1] + SBlock[indexForSwapKey2]) % SBlock.count])
     }
     
     // Перестановка элементов
     private func swap(i: Int, j: Int) {
-        let tmp = SKey[i]
-        SKey[i] = SKey[j]
-        SKey[j] = tmp
+        let tmp = SBlock[i]
+        SBlock[i] = SBlock[j]
+        SBlock[j] = tmp
     }
 }
 
@@ -56,7 +56,9 @@ let dataString = "Daniil Semenov!"
 print("Ключ: \t\t\t", keyString)
 print("Текст: \t\t\t", dataString)
 print("Текст: \t\t\t", Array(dataString.utf8))
-var ecnrypt = cipher.encryptDecrypt(data: Array(dataString.utf8), key: Array(keyString.utf8))
-print("Зашифрованный: \t", ecnrypt)
-ecnrypt = cipher.encryptDecrypt(data: ecnrypt, key: Array(keyString.utf8))
-print("Расшифрованный: ", ecnrypt)
+
+var ciphertext = cipher.encryptDecrypt(data: Array(dataString.utf8), key: Array(keyString.utf8))
+print("Зашифрованный: \t", ciphertext)
+
+var decryptedText = cipher.encryptDecrypt(data: ciphertext, key: Array(keyString.utf8))
+print("Расшифрованный: ", decryptedText)
