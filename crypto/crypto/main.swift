@@ -48,17 +48,22 @@ class Cipher {
     }
 }
 
+func stringFromBytes(_ bytes: [UInt8]) -> String {
+    return NSString(bytes: bytes, length: bytes.count, encoding: String.Encoding.utf8.rawValue) as? String ?? ""
+}
+
 let cipher = Cipher()
 
 let keyString  = "key"
-let dataString = "Daniil Semenov!"
+let dataString = "Привет мир!"
 
-print("Ключ: \t\t\t", keyString)
-print("Текст: \t\t\t", dataString)
-print("Текст: \t\t\t", Array(dataString.utf8))
+print("Ключ: \t\t\t\t\t\t\t", keyString)
+print("Текст: \t\t\t\t\t\t\t", dataString)
+print("Текст в байтах: \t\t\t\t", Array(dataString.utf8))
+print("Текст (снова обычный из байтов):", stringFromBytes(Array(dataString.utf8)))
 
 var ciphertext = cipher.encryptDecrypt(data: Array(dataString.utf8), key: Array(keyString.utf8))
-print("Зашифрованный: \t", ciphertext)
+print("Зашифрованный: \t\t\t\t\t", ciphertext)
 
 var decryptedText = cipher.encryptDecrypt(data: ciphertext, key: Array(keyString.utf8))
-print("Расшифрованный: ", decryptedText)
+print("Расшифрованный: \t\t\t\t", stringFromBytes(decryptedText))
